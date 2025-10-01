@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=DM+Serif+Display:ital@0;1&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #faf9ed;
+  font-family: "DM Sans", sans-serif;
+  line-height: 1.5;
+}
+
+.conten_nav_lectura_critica {
+  background-color: #81cbf6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  flex-wrap: wrap;
+}
+
+.conten_Lectura_Critica {
+  background-image: url(/Galeria/imagensonrisalectura.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 6px solid #faf9ed;
+}
+
+.col_titulo {
+  font-family: "DM Serif Display", serif;
+  font-size: 1.5rem;
+  margin-left: 1rem;
+  text-align: right;
+  flex: 1;
+}
+
+.conten_texto {
+  text-align: center;
+  padding: 20px;
+  margin: 20px;
+  font-size: 1rem;
+}
+
+.conten_fuente {
+  text-align: right;
+  margin: 10px 20px;
+  font-size: 0.9rem;
+}
+
+.contenedor-mayor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 20px;
+}
+
+.preg-1,
+.preg-2 {
+  flex: 1 1 100%;
+  background-color: #81cbf6;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 10px 0;
+}
+
+.preg-1 h2,
+.preg-2 h2 {
+  font-family: "DM Serif Display", serif;
+  margin-bottom: 10px;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  transform: scale(1.2);
+  accent-color: #3498db;
+  cursor: pointer;
+}
+
+.botones {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+  gap: 10px;
+}
+
+.boton_siguiente,
+.boton_volver,
+.boton_finalizar {
+  background-color: #81cbf6;
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.boton_siguiente:hover,
+.boton_volver:hover,
+.boton_finalizar:hover {
+  background-color: #4aaae1;
+}
+
+/*tablet*/
+@media (min-width: 577px) and (max-width: 992px) {
+  .preg-1,
+  .preg-2 {
+    flex: 1 1 48%;
+  }
+}
+
+@media (min-width: 993px) {
+  .preg-1,
+  .preg-2 {
+    flex: 1 1 45%;
+  }
+}
+

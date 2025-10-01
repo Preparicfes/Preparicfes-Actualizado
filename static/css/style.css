@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #faf9ede6;
+  background-image: url(/Preparicfes/Galeria/CRITERIOS\ DE\ EVALUACIÓN.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
+.conten_titulo {
+  max-width: 400px;
+  margin: 70px auto 20px;
+  text-align: center;
+}
+
+.conten_titulo h1 {
+  font-family: "DM Serif Display", serif;
+  font-weight: 400;
+}
+
+
+.conten_form_inicio {
+  margin: auto;
+  padding: 30px;
+  margin-top: 20px;
+  width: 50%;
+  min-width: 300px;
+  border-radius: 30px;
+  text-align: center;
+  font-family: "DM Serif Display", serif;
+  border: 2px solid #f2e6c2;
+  background-color: #faf9ede6;
+}
+
+.border_input {
+  border-radius: 60px;
+}
+
+.btn_siguiente {
+  display: inline-block;
+  background-color: #f4eacb;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-family: "DM Serif Display", serif;
+  font-size: 18px;
+  color: black;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btn_siguiente:hover {
+  background-color: #e2d9a7;
+  transform: scale(1.05);
+}
+
+.dis-img {
+  margin: 40px auto;
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: center;
+  gap: 20px;
+}
+
+.conten_img1,
+.conten_img2,
+.conten_img3,
+.conten_img4,
+.conten_img5 {
+  flex: 1 1 200px; 
+  max-width: 250px;
+  height: 250px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.conten_img1 { background-image: url("../Galeria/1.png"); }
+.conten_img2 { background-image: url("../Galeria/2.png"); }
+.conten_img3 { background-image: url("../Galeria/3.png"); }
+.conten_img4 { background-image: url("../Galeria/4 .png"); }
+.conten_img5 { background-image: url("../Galeria/5.png"); }
+
+.registrarse{
+  font-size: 16px;
+  color: black;
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+.registrarse:hover{
+  text-decoration: underline;
+}
+
+
+/* Tablets */
+@media (max-width: 992px) {
+  .conten_form_inicio {
+    width: 70%;
+  }
+}
+
+/* Móviles */
+@media (max-width: 576px) {
+  .conten_titulo h1 {
+    font-size: 1.8rem;
+  }
+
+  .conten_form_inicio {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .btn_siguiente {
+    font-size: 16px;
+    padding: 10px 25px;
+  }
+
+  .conten_img1,
+  .conten_img2,
+  .conten_img3,
+  .conten_img4,
+  .conten_img5 {
+    max-width: 180px;
+    height: 180px;
+  }
+}

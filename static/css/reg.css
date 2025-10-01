@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background-color: #faf9ede6;
+  font-family: "DM Serif Display", serif;
+}
+
+.conten_form_inicio {
+  margin: auto;
+  padding: 30px;
+  margin-top: 20px;
+  width: 50%;
+  min-width: 300px;
+  border-radius: 30px;
+  text-align: center;
+  font-family: "DM Serif Display", serif;
+  border: 2px solid #f2e6c2;
+  background-color: #faf9ede6;
+}
+
+.border_input {
+  border-radius: 50px;
+}
+
+.btn_registro {
+  display: inline-block;
+  background-color: #f4eacb;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-family: "DM Serif Display", serif;
+  font-size: 18px;
+  color: black;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btn_registro:hover {
+  background-color: #e2d9a7;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.tipo_letra {
+  font-size: 16px;
+  color: black;
+  text-decoration: none;
+}
+
+.tipo_letra:hover {
+  text-decoration: underline;
+}

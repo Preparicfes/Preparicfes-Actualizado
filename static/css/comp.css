@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+
+body {
+  background-color: #faf9ede6;
+  font-family: "DM Serif Display", serif;
+}
+
+.conten_barra {
+  background-color: #F4EACB;
+  padding: 10px 20px;
+}
+
+.nav-link {
+  color: black;
+  font-weight: bold;
+}
+
+.nav-link:hover {
+  color: #555;
+}
+
+.conten_competencias {
+  text-align: center;
+  margin: 30px auto;
+}
+
+.grid_competencias {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 2fr));
+  gap: 25px;
+  margin: 30px auto;
+  justify-content: center;
+}
+
+.card_comp {
+  display: block;
+  text-align: center;
+  padding: 20px;
+  border-radius: 20px;
+  color: black;
+  text-decoration: none;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card_comp:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.card_comp h2 {
+  margin: 15px 0;
+}
+
+.card_comp ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  margin-top: 10px;
+}
+
+
+.logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.3);
+}
+
+.logo img {
+  max-width: 70%;
+  max-height: 70%;
+}
+
+.matematicas { background-color: #FFA29E; }
+.ingles { background-color: #CCB5F8; }
+.sociales { background-color: #FFFAB9; }
+.lectura { background-color: #81CBF6; }
+.ciencias { background-color: #C7F683; }
+
+
+/* Tablets */
+@media (max-width: 992px) {
+  .materias div {
+    width: 45%;
+    min-height: 280px;
+  }
+}
+
+/* Móviles */
+@media (max-width: 576px) {
+  .conten_competencias h1 {
+    font-size: 1.8rem;
+  }
+
+  .botones {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .botones a {
+    width: 150px;
+    height: 150px;
+  }
+
+  .nombres div {
+    width: 100%;
+  }
+
+  .materias div {
+    width: 100%;
+    min-height: auto;
+  }
+  .grid_competencias{
+    width: 100%;
+    align-content: center;
+  }
+}
+

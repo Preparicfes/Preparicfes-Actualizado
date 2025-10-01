@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600&display=swap');
+body {
+    background-color: #faf9ed;
+    background-image: url(/Galeria/CRITERIOS\ DE\ EVALUACIÓN.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    font-family: "DM Sans", sans-serif;
+}
+
+.content_introduccion {
+      margin: 40px auto 20px;
+  max-width: 800px;
+}
+
+.content_introduccion h1{
+    font-family: "DM Serif Display", serif;
+  font-weight: 400;
+}
+
+.content_cuadrado {
+    background-color: #f4eacb;
+    max-width: 950px;
+    width: 90%;             
+    min-height: 250px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    font-family: "DM Sans", sans-serif;
+    text-align: justify;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;      
+}
+
+.texto {
+    padding: 0.5rem;
+}
+
+.content_barra {
+  background-color: #f4eacb;
+  padding: 10px 20px;
+}
+
+.nav-link {
+  color: black;
+  font-family: "DM Serif Display", serif;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.nav-link:hover {
+  color: #555;
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+    .content_cuadrado {
+        font-size: 1rem;
+        padding: 1rem;
+    }
+}
+/* Moviles*/
+@media (max-width: 768px) {
+    .content_introduccion h1 {
+        font-size: 1.8rem;
+    }
+
+    .content_cuadrado {
+        width: 95%;
+        font-size: 1rem;
+    }
+
+    .nav .nav-item {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .content_introduccion h1 {
+        font-size: 1.5rem;
+    }
+
+    .content_cuadrado {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+    }
+}

@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
- 
+import bcrypt
+
+
 app = FastAPI()
 templates = Jinja2Templates (directory="templates")
 app.mount("/static", StaticFiles (directory="static"), name="static")
@@ -19,6 +21,64 @@ async def registrate(request: Request):
 @app.get("/intro", response_class=HTMLResponse, name="intro")
 async def intro(request: Request):
     return templates.TemplateResponse("intro.html", {"request": request})
+
+@app.post("/registrar_usuario")
+async def registrar_usuario(
+    request: Request,
+    correo: str = Form(...),
+    contraseña: str = Form(...)
+):
+    # Verificar si ya existe el correo
+    existing_user = supabase.table("usuarios").select("*").eq("correo", correo).execute()
+    if existing_user.data:
+        # Ya existe
+        return templates.TemplateResponse("registrate.html", {
+            "request": request,
+            "error": "El correo ya está registrado. Inicia sesión."
+        })
+
+    # Cifrar la contraseña antes de guardar
+    hashed_password = bcrypt.hashpw(contraseña.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+    # Insertar nuevo usuario
+    supabase.table("usuarios").insert({
+        "correo": correo,
+        "contraseña": hashed_password
+    }).execute()
+
+    # Redirigir al login (index)
+    return RedirectResponse(url="/", status_code=303)
+
+# -------------------------------
+# INICIO DE SESIÓN
+# -------------------------------
+@app.post("/login")
+async def login(
+    request: Request,
+    correo: str = Form(...),
+    contraseña: str = Form(...)
+):
+    # Buscar usuario
+    user = supabase.table("usuarios").select("*").eq("correo", correo).execute()
+
+    if not user.data:
+        # Usuario no encontrado
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "error": "Usuario no encontrado. Regístrate primero."
+        })
+
+    stored_password = user.data[0]["contraseña"]
+
+    # Verificar contraseña
+    if not bcrypt.checkpw(contraseña.encode("utf-8"), stored_password.encode("utf-8")):
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "error": "Contraseña incorrecta."
+        })
+
+    # Si todo está bien, redirigir a intro
+    return RedirectResponse(url="/intro", status_code=303)
 
 @app.get("/criterio", response_class=HTMLResponse, name="criterio")
 async def criterio(request: Request):

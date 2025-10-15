@@ -15,24 +15,28 @@
       <h1>PREPARICFES</h1>
     </div>
 
-    <div class="conten_form_inicio">
-      <form action="" method="post">
+    <div class="conten_form_inicio mx-auto">
+      <form id="loginForm">
         <div class="mb-3">
-          <label for="nombre" class="form-label">INGRESE SU NOMBRE</label>
-          <input id="nombre" class="form-control form-control-lg border_input" type="text" required>
+          <label for="email" class="form-label">CORREO ELECTRÓNICO</label>
+          <input id="email" name="email" class="form-control form-control-lg border_input" type="email" required>
         </div>
 
         <div class="mb-3">
-          <label for="grado" class="form-label">INGRESE SU GRADO</label>
-          <input id="grado" class="form-control form-control-lg border_input" type="text" required>
+          <label for="password" class="form-label">CONTRASEÑA</label>
+          <input id="password" name="password" class="form-control form-control-lg border_input" type="password" required>
         </div>
 
-        <div class="registrarse">
-          <a href="{{ url_for('registrate')}}"  class="registrarse">¿No tienes cuenta? Registrate</a>
+        <div class="mb-4">
+          <label for="grado" class="form-label">GRADO</label>
+          <input id="grado" name="grado" class="form-control form-control-lg border_input" type="text" required>
         </div>
 
         <div class="conten_siguiente">
-          <a href="{{ url_for('intro')}}" class="btn_siguiente">SIGUIENTE</a>
+          <a href="#" id="btnSiguiente" class="btn_siguiente">SIGUIENTE</a>
+        </div>
+         <div class="text-center">
+         <a href="{{ url_for('registrate')}}" class="registrarse">¿No tienes cuenta? Regístrate</a>
         </div>
       </form>
     </div>
@@ -45,6 +49,19 @@
     <div class="conten_img4"></div>
     <div class="conten_img5"></div>
   </div>
+
+  <script>
+   
+    document.getElementById("btnSiguiente").addEventListener("click", function (event) {
+      const form = document.getElementById("loginForm");
+      if (form.checkValidity()) {
+       
+        window.location.href = "{{ url_for('intro') }}";
+      } else {
+        form.reportValidity();
+      }
+    });
+  </script>
 
 </body>
 </html>

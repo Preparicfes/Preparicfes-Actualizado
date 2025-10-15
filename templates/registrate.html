@@ -11,12 +11,14 @@
 
   <div class="container">
 
+    
     <div class="conten_titulo text-center my-4">
       <h1>BIENVENIDO</h1>
       <h3 class="mt-2">Regístrate</h3>
     </div>
 
-    <div class="conten_form_inicio mx-auto">
+    
+       <div class="conten_form_inicio mx-auto">
       <form id="registroForm">
 
         <div class="mb-3">
@@ -34,32 +36,21 @@
           <label for="grado" class="form-label">GRADO</label>
           <input id="grado" name="grado" class="form-control form-control-lg border_input" type="text" required>
         </div>
-
-       <div class="conten_siguiente">
+          <div class="conten_siguiente">
           <a href="{{ url_for('index')}}"type="submit" class="btn_registro">Registrarse</a>
         </div>
 
-       <div class="text-center">
+        <div class="text-center">
           <a href="{{ url_for('index')}}" class="tipo_letra">¿Ya tienes cuenta? Inicia sesión</a>
+        </div>
+          </a>
         </div>
 
       </form>
     </div>
   </div>
 
-  <script>
-    // Evita que pase si no se llenan los campos
-    document.getElementById("btnRegistro").addEventListener("click", function (event) {
-      const form = document.getElementById("registroForm");
-      if (form.checkValidity()) {
-        // ✅ Si todo está lleno, redirige al index
-        window.location.href = "{{ url_for('index') }}";
-      } else {
-        // 🚫 Si falta algo, muestra los avisos del navegador
-        form.reportValidity();
-      }
-    });
-  </script>
+  </div>
 
 </body>
 </html>

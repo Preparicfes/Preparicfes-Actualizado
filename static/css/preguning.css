@@ -26,8 +26,8 @@ body {
   display: flex;
 
   justify-content: center;
-  width: 200px;
-  height: 200px;
+  width: 100px;
+  height: 100px;
   align-items: center;
   border-radius: 50%;
   border: 6px solid #faf9ed;

@@ -12,6 +12,8 @@ body {
   line-height: 1.5;
 }
 
+
+
 .conten_nav_sociales {
   background-color: #FFFAB9;
   display: flex;
@@ -21,15 +23,16 @@ body {
   flex-wrap: wrap;
 }
 
-.conten_sociales {
-  background-image: url(/Galeria/sonriente_sociales.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100%;
-  width: 100px;
-  height: 100px;
+.conten_sociales{
+  display: flex;
+
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  align-items: center;
   border-radius: 50%;
   border: 6px solid #faf9ede6;
+  overflow: hidden;
 }
 
 .col_titulo {

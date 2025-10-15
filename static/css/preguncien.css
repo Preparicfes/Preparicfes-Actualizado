@@ -12,7 +12,8 @@ body {
   line-height: 1.5;
 }
 
-.conten_nav_ciencias {
+
+.conten_nav_ciencias{
   background-color: #c7f683;
   display: flex;
   align-items: center;
@@ -21,15 +22,16 @@ body {
   flex-wrap: wrap;
 }
 
-.conten_ciencias {
-  background-image: url(/Galeria/cienciasonriosa.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100%;
-  width: 100px;
-  height: 100px;
+.conten_ciencias{
+  display: flex;
+
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  align-items: center;
   border-radius: 50%;
   border: 6px solid #faf9ed;
+  overflow: hidden;
 }
 
 .col_titulo {

@@ -12,6 +12,7 @@ body {
   line-height: 1.5;
 }
 
+
 .conten_nav_lectura_critica {
   background-color: #81cbf6;
   display: flex;
@@ -21,15 +22,16 @@ body {
   flex-wrap: wrap;
 }
 
-.conten_Lectura_Critica {
-  background-image: url(/Galeria/imagensonrisalectura.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100%;
-  width: 100px;
-  height: 100px;
+.conten_Lectura_Critica{
+  display: flex;
+
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  align-items: center;
   border-radius: 50%;
   border: 6px solid #faf9ed;
+  overflow: hidden;
 }
 
 .col_titulo {

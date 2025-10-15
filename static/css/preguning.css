@@ -12,6 +12,7 @@ body {
   line-height: 1.5;
 }
 
+
 .conten_nav_ingles {
   background-color: #ccb5f8;
   display: flex;
@@ -22,15 +23,19 @@ body {
 }
 
 .conten_ingles {
-  background-image: url(/Galeria/sonrisa.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 80%;
-  width: 100px;
-  height: 100px;
+  display: flex;
+
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  align-items: center;
   border-radius: 50%;
   border: 6px solid #faf9ed;
+  overflow: hidden;
+  
 }
+
+
 
 .col_titulo {
   font-family: "DM Serif Display", serif;

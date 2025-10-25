@@ -4,7 +4,6 @@ from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from passlib.context import CryptContext
 from sqlalchemy import text
 from db import SessionDepends
 from datetime import datetime
@@ -13,18 +12,6 @@ from typing import Optional
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Configuración para encriptar contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def hash_password(password: str) -> str:
-    """Encripta una contraseña"""
-    return pwd_context.hash(password)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifica si una contraseña coincide con su hash"""
-    return pwd_context.verify(plain_password, hashed_password)
-
 
 # --- RUTAS DE PÁGINAS ---
 
@@ -67,16 +54,9 @@ async def registrar_usuario(
                 }
             )
         
-        # Encriptar la contraseña
-        print("🔒 Encriptando contraseña...")
-        password = password[:72]  # Limita a 72 caracteres
-        hashed_password = hash_password(password)
-        
-        # Insertar nuevo usuario
-        print("💾 Insertando usuario en la base de datos...")
-        query_insert = text("""
-            INSERT INTO usuarios (email, password, grado, fecha_registro)
-            VALUES (:email, :password, :grado, :fecha_registro)
+        print("💾 Guardando contraseña sin cifrar...")
+        query_insert = text("""INSERT INTO usuarios (email, password, grado, fecha_registro)
+                            VALUES (:email, :password, :grado, :fecha_registro)
         """)
         
         session.execute(query_insert, {
@@ -129,8 +109,7 @@ async def login(
         
         result = session.execute(query, {"email": email}).fetchone()
         
-        # Verificar si el usuario existe y la contraseña es correcta
-        if not result or not verify_password(password, result[2]):
+        if not result or password != result[2]:
             return templates.TemplateResponse(
                 "index.html",
                 {

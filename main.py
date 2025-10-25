@@ -54,17 +54,18 @@ async def registrar_usuario(
                 }
             )
         
-        print("💾 Guardando contraseña sin cifrar...")
+        # Insertar nuevo usuario (sin cifrar contraseña)
+        print("💾 Insertando usuario en la base de datos...")
         query_insert = text("""
             INSERT INTO usuarios (email, password, grado, fecha_registro)
             VALUES (:email, :password, :grado, :fecha_registro)
         """)
-
+        
         session.execute(query_insert, {
             "email": email,
-            "password": password,  # 🔹 usa directamente la contraseña del formulario
-        "grado": grado,
-        "fecha_registro": datetime.now()
+            "password": password,
+            "grado": grado,
+            "fecha_registro": datetime.now()
         })
         session.commit()
         
@@ -98,9 +99,11 @@ async def login(
     session: SessionDepends = None
 ):
     """
-    Valida las credenciales del usuario y guarda info en sesión
+    Valida las credenciales del usuario
     """
     try:
+        print(f"🔐 Intentando login: {email}")
+        
         # Buscar usuario por email
         query = text("""
             SELECT id, email, password, grado 
@@ -110,7 +113,9 @@ async def login(
         
         result = session.execute(query, {"email": email}).fetchone()
         
+        # Verificar si el usuario existe y la contraseña es correcta
         if not result or password != result[2]:
+            print(f"❌ Login fallido para: {email}")
             return templates.TemplateResponse(
                 "index.html",
                 {
@@ -122,13 +127,9 @@ async def login(
         user_id = result[0]
         grado = result[3]
         
-        # 🔍 DEBUG - Verificar valores
-        print(f"✅ Login exitoso:")
-        print(f"   - user_id: {user_id} (tipo: {type(user_id)})")
-        print(f"   - grado: {grado} (tipo: {type(grado)})")
-        print(f"   - URL de redirección: /intro?user_id={user_id}&grado={grado}")
+        print(f"✅ Login exitoso: user_id={user_id}, grado={grado}")
         
-        # Login exitoso - redirigir con parámetros de usuario
+        # Login exitoso - redirigir a la página de introducción
         return RedirectResponse(
             url=f"/intro?user_id={user_id}&grado={grado}",
             status_code=303
@@ -190,7 +191,7 @@ async def preguntas_materia(
     if not user_id or not grado:
         return RedirectResponse(url="/")
     
-    # Mapeo de nombres de materia y colores (usando los mismos de comp.css)
+    # Mapeo de nombres de materia y colores
     materias_config = {
         "matematicas": {
             "nombre": "Matemáticas",
@@ -245,44 +246,15 @@ async def get_preguntas(
 ):
     """
     API para obtener preguntas de una materia y grado específicos
-    Retorna 2 preguntas por página de un total de 6 aleatorias
     """
     try:
-        # Mapeo de nombres de materia - MÚLTIPLES VARIANTES PARA COMPATIBILIDAD
+        # Mapeo de nombres de materia
         materias_map = {
-            "matematicas": [
-                "Matemáticas",
-                "Matematicas", 
-                "MATEMÁTICAS",
-                "MATEMATICAS"
-            ],
-            "ingles": [
-                "Inglés",
-                "Ingles",
-                "INGLÉS",
-                "INGLES",
-                "English"
-            ],
-            "sociales": [
-                "Ciencias Sociales",
-                "Sociales y Ciudadanas",
-                "Sociales",
-                "CIENCIAS SOCIALES",
-                "SOCIALES"
-            ],
-            "lectura": [
-                "Lectura Crítica",
-                "Lectura Critica",
-                "LECTURA CRÍTICA",
-                "LECTURA CRITICA",
-                "Lectura crítica"
-            ],
-            "ciencias": [
-                "Ciencias Naturales",
-                "Ciencias",
-                "CIENCIAS NATURALES",
-                "CIENCIAS"
-            ]
+            "matematicas": ["Matemáticas", "Matematicas", "MATEMÁTICAS", "MATEMATICAS"],
+            "ingles": ["Inglés", "Ingles", "INGLÉS", "INGLES", "English"],
+            "sociales": ["Ciencias Sociales", "Sociales y Ciudadanas", "Sociales", "CIENCIAS SOCIALES", "SOCIALES"],
+            "lectura": ["Lectura Crítica", "Lectura Critica", "LECTURA CRÍTICA", "LECTURA CRITICA"],
+            "ciencias": ["Ciencias Naturales", "Ciencias", "CIENCIAS NATURALES", "CIENCIAS"]
         }
         
         posibles_nombres = materias_map.get(materia)
@@ -291,84 +263,49 @@ async def get_preguntas(
             raise HTTPException(status_code=404, detail="Materia no encontrada")
         
         print(f"🔍 Buscando área: {materia}")
-        print(f"   Probando nombres: {posibles_nombres}")
         
-        # Intentar encontrar el área con cualquiera de los nombres posibles
+        # Buscar el área
         area_id = None
-        nombre_encontrado = None
-        
         for nombre in posibles_nombres:
-            query_area = text("SELECT id, nombre_materia FROM areas WHERE nombre_materia = :nombre")
+            query_area = text("SELECT id FROM areas WHERE nombre_materia = :nombre")
             area_result = session.execute(query_area, {"nombre": nombre}).fetchone()
             
             if area_result:
                 area_id = area_result[0]
-                nombre_encontrado = area_result[1]
-                print(f"✅ Área encontrada - ID: {area_id}, Nombre: '{nombre_encontrado}'")
+                print(f"✅ Área encontrada - ID: {area_id}")
                 break
         
-        # Si no se encontró, intentar búsqueda case-insensitive y con LIKE
         if not area_id:
-            print("⚠️ No encontrado con nombres exactos, intentando búsqueda flexible...")
-            query_area_flexible = text("""
-                SELECT id, nombre_materia 
-                FROM areas 
-                WHERE LOWER(nombre_materia) LIKE LOWER(:patron)
-                LIMIT 1
-            """)
-            
-            for nombre in posibles_nombres:
-                patron = f"%{nombre.split()[0]}%"  # Usar primera palabra
-                area_result = session.execute(query_area_flexible, {"patron": patron}).fetchone()
-                
-                if area_result:
-                    area_id = area_result[0]
-                    nombre_encontrado = area_result[1]
-                    print(f"✅ Área encontrada (flexible) - ID: {area_id}, Nombre: '{nombre_encontrado}'")
-                    break
+            raise HTTPException(status_code=404, detail=f"Área no encontrada para '{materia}'")
         
-        if not area_id:
-            # Mostrar todas las áreas disponibles para debugging
-            todas_areas = session.execute(text("SELECT id, nombre_materia FROM areas")).fetchall()
-            print("❌ Área no encontrada. Áreas disponibles en la BD:")
-            for a in todas_areas:
-                print(f"   - ID {a[0]}: '{a[1]}'")
-            raise HTTPException(
-                status_code=404, 
-                detail=f"Área no encontrada para '{materia}'. Revisa los nombres en la tabla 'areas'"
-            )
+        # Convertir grado a número si viene como texto
+        grado_numeros = {
+            "sexto": 6, "6": 6,
+            "séptimo": 7, "septimo": 7, "7": 7,
+            "octavo": 8, "8": 8,
+            "noveno": 9, "9": 9,
+            "décimo": 10, "decimo": 10, "10": 10,
+            "once": 11, "11": 11
+        }
+        
+        grado_numero = grado_numeros.get(str(grado).lower(), None)
+        
+        if not grado_numero:
+            try:
+                grado_numero = int(grado)
+            except:
+                raise HTTPException(status_code=400, detail=f"Grado inválido: {grado}")
         
         # Obtener ID del grado
         query_grado = text("SELECT id FROM grado WHERE numero_grado = :numero")
-        grado_result = session.execute(query_grado, {"numero": int(grado)}).fetchone()
+        grado_result = session.execute(query_grado, {"numero": grado_numero}).fetchone()
         
         if not grado_result:
-            print(f"❌ Grado no encontrado: {grado}")
             raise HTTPException(status_code=404, detail=f"Grado {grado} no encontrado")
         
         grado_id = grado_result[0]
-        print(f"✅ Grado encontrado - ID: {grado_id}")
         
-        # Contar total de preguntas disponibles
-        query_count = text("""
-            SELECT COUNT(*) 
-            FROM preguntas 
-            WHERE id_areas = :area_id AND id_grado = :grado_id
-        """)
-        total_disponibles = session.execute(query_count, {
-            "area_id": area_id,
-            "grado_id": grado_id
-        }).scalar()
-        
-        print(f"📊 Total de preguntas disponibles: {total_disponibles}")
-        
-        if total_disponibles == 0:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"No hay preguntas para {nombre_encontrado} grado {grado}"
-            )
-        
-        # Obtener máximo 6 preguntas aleatorias (las guardamos para paginación)
+        # Obtener 6 preguntas aleatorias
         query_preguntas = text("""
             SELECT id, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, 
                    imagen, respuesta_correcta
@@ -383,14 +320,12 @@ async def get_preguntas(
             "grado_id": grado_id
         }).fetchall()
         
-        # Aplicar paginación sobre las 6 preguntas
+        # Aplicar paginación
         inicio = offset
         fin = offset + limit
         preguntas_pagina = todas_preguntas[inicio:fin]
         
-        total_preguntas = min(len(todas_preguntas), 6)
-        
-        print(f"📄 Página actual: preguntas {inicio+1}-{min(fin, total_preguntas)} de {total_preguntas}")
+        total_preguntas = len(todas_preguntas)
         
         # Formatear respuesta
         preguntas_list = []
@@ -447,25 +382,19 @@ async def guardar_respuestas(
         puntaje_final = (correctas / total) * 100 if total > 0 else 0
         
         # Obtener o crear estudiante
-        query_estudiante = text("""
-            SELECT id FROM estudiantes WHERE id_usuario = :user_id
-        """)
+        query_estudiante = text("SELECT id FROM estudiantes WHERE id_usuario = :user_id")
         estudiante = session.execute(query_estudiante, {"user_id": user_id}).fetchone()
         
         if not estudiante:
             # Obtener el grado del usuario
-            query_grado_usuario = text("""
-                SELECT grado FROM usuarios WHERE id = :user_id
-            """)
+            query_grado_usuario = text("SELECT grado FROM usuarios WHERE id = :user_id")
             grado_usuario = session.execute(query_grado_usuario, {"user_id": user_id}).scalar()
             
             # Obtener el ID del grado
-            query_grado_id = text("""
-                SELECT id FROM grado WHERE numero_grado = :numero
-            """)
+            query_grado_id = text("SELECT id FROM grado WHERE numero_grado = :numero")
             grado_id = session.execute(query_grado_id, {"numero": int(grado_usuario)}).scalar()
             
-            # Crear estudiante si no existe
+            # Crear estudiante
             query_insert_est = text("""
                 INSERT INTO estudiantes (id_usuario, id_grado)
                 VALUES (:user_id, :grado_id)
@@ -478,7 +407,7 @@ async def guardar_respuestas(
         else:
             estudiante_id = estudiante[0]
         
-        # Obtener ID del área (usando la misma lógica flexible)
+        # Obtener ID del área
         materias_map = {
             "matematicas": ["Matemáticas", "Matematicas"],
             "ingles": ["Inglés", "Ingles"],
@@ -542,9 +471,7 @@ async def Resul(
     
     try:
         # Obtener el estudiante
-        query_estudiante = text("""
-            SELECT id FROM estudiantes WHERE id_usuario = :user_id
-        """)
+        query_estudiante = text("SELECT id FROM estudiantes WHERE id_usuario = :user_id")
         estudiante = session.execute(query_estudiante, {"user_id": user_id}).fetchone()
         
         resultados = []
@@ -614,7 +541,7 @@ async def Resul(
         })
 
 
-# --- MANTENER RUTAS ANTIGUAS PARA COMPATIBILIDAD (redirigir a dinámicas) ---
+# --- RUTAS ANTIGUAS PARA COMPATIBILIDAD ---
 
 @app.get("/pregun1mat", response_class=HTMLResponse)
 async def pregun1mat(request: Request, user_id: Optional[int] = None, grado: Optional[str] = None):

@@ -6,134 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PREPARICFES - Resultados</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
-
-    body {
-      background-color: #faf9ede6;
-      font-family: "DM Serif Display", serif;
-    }
-
-    .content_barra {
-      background-color: #F4EACB;
-      padding: 10px 20px;
-    }
-
-    .nav-link {
-      color: black;
-      font-weight: bold;
-    }
-
-    .nav-link:hover {
-      color: #555;
-    }
-
-    .container {
-      max-width: 900px;
-    }
-
-    h1 {
-      color: #333;
-      margin: 40px 0 30px 0;
-      font-size: 2.5rem;
-    }
-
-    .table {
-      background-color: white;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .table thead {
-      background-color: #F4EACB;
-      font-weight: bold;
-    }
-
-    .table tbody tr:hover {
-      background-color: #f8f9fa;
-    }
-
-    .badge-superior {
-      background-color: #28a745;
-      color: white;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-
-    .badge-alto {
-      background-color: #17a2b8;
-      color: white;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-
-    .badge-medio {
-      background-color: #ffc107;
-      color: black;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-
-    .badge-bajo {
-      background-color: #dc3545;
-      color: white;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-
-    .boton_siguiente {
-      background-color: #F4EACB;
-      border: none;
-      padding: 12px 40px;
-      border-radius: 10px;
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-
-    .boton_siguiente:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    .mensaje-info {
-      background-color: #e3f2fd;
-      padding: 20px;
-      border-radius: 10px;
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .promedio-box {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
-      border-radius: 15px;
-      text-align: center;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .promedio-box h3 {
-      margin: 0;
-      font-size: 1.3rem;
-    }
-
-    .promedio-box .numero {
-      font-size: 3rem;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/resultados.css')}}">
 </head>
 
 <body>
 
-   <div class="content_barra">
+  <div class="content_barra">
     <ul class="nav justify-content-end">
       <li class="nav-item">
         <a class="nav-link" href="{{ url_for('intro')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Introducción</a>
@@ -147,41 +25,21 @@
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="#">Resultados</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('usuario')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Usuario</a>
+      </li>
     </ul>
   </div>
 
   <div class="container my-5">
     <h1 class="text-center">📊 Mis Resultados</h1>
 
-    {% if grado %}
-    <p style="text-align: center; color: #666; margin-bottom: 30px;">
-      📚 Grado: <strong>{{ grado }}</strong>
-    </p>
-    {% endif %}
-
     {% if resultados %}
     
-    <!-- Promedio General -->
-    <div class="promedio-box">
-      <h3>Promedio General</h3>
-      <div class="numero">{{ promedio }}%</div>
-      <p style="margin: 0;">
-        {% if promedio >= 90 %}
-        🏆 ¡Excelente desempeño!
-        {% elif promedio >= 70 %}
-        👍 ¡Muy buen trabajo!
-        {% elif promedio >= 50 %}
-        👌 Buen progreso
-        {% else %}
-        📚 Continúa practicando
-        {% endif %}
-      </p>
-    </div>
-
     <!-- Tabla de Resultados -->
-    <div class="table-responsive">
+    <div class="table-responsive my-4">
       <table class="table table-bordered text-center align-middle">
-        <thead>
+        <thead class="table-dark">
           <tr>
             <th>Materia</th>
             <th>Puntaje</th>
@@ -192,27 +50,31 @@
           {% for resultado in resultados %}
           <tr>
             <td><strong>{{ resultado.materia }}</strong></td>
-            <td><h4 style="margin: 0; color: #667eea;">{{ resultado.puntaje }}%</h4></td>
+            <td><h4 style="margin: 0; color: #333;">{{ resultado.puntaje }}%</h4></td>
             <td>
               {% if resultado.desempeno == 'Superior' %}
-              <span class="badge-superior">{{ resultado.desempeno }}</span>
+              <span class="badge bg-success">{{ resultado.desempeno }}</span>
               {% elif resultado.desempeno == 'Alto' %}
-              <span class="badge-alto">{{ resultado.desempeno }}</span>
+              <span class="badge bg-info">{{ resultado.desempeno }}</span>
               {% elif resultado.desempeno == 'Medio' %}
-              <span class="badge-medio">{{ resultado.desempeno }}</span>
+              <span class="badge bg-warning text-dark">{{ resultado.desempeno }}</span>
               {% else %}
-              <span class="badge-bajo">{{ resultado.desempeno }}</span>
+              <span class="badge bg-danger">{{ resultado.desempeno }}</span>
               {% endif %}
             </td>
           </tr>
           {% endfor %}
+          <tr style="background-color: #f4eacb; font-weight: bold;">
+            <td>PROMEDIO GENERAL</td>
+            <td colspan="2"><h3 style="margin: 0;">{{ promedio }}%</h3></td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     {% else %}
     
-    <div class="mensaje-info">
+    <div class="alert alert-info text-center my-5" role="alert">
       <h3>📝 Aún no has completado ninguna prueba</h3>
       <p>Comienza a practicar para ver tus resultados aquí</p>
     </div>
@@ -222,7 +84,7 @@
     <!-- Botones -->
     <div class="text-center mt-4">
       <a href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">
-        <button class="boton_siguiente">🔙 Volver a Competencias</button>
+        <button class="boton_siguiente">📚 Volver a Competencias</button>
       </a>
       <a href="{{ url_for('index')}}">
         <button class="boton_siguiente" style="margin-left: 10px;">🏠 Cerrar Sesión</button>

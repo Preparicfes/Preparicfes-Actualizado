@@ -14,7 +14,8 @@
       <li class="nav-item"><a class="nav-link" href="{{ url_for('intro')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Introducción</a></li>
       <li class="nav-item"><a class="nav-link" href="{{ url_for('criterio')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Criterios</a></li>
       <li class="nav-item"><a class="nav-link" href="{{ url_for('index')}}">Inicio</a></li>
-      <li class="nav-item"><a class="nav-link active" href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Información</a></li>
+      <li class="nav-item"><a class="nav-link active" href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Competencias</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('usuario')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Usuario</a></li>
     </ul>
   </div>
 
@@ -99,13 +100,6 @@
     </a>
 
   </div>
-
-  <!-- Debug info (remover en producción) -->
-  {% if user_id %}
-  <div style="position: fixed; bottom: 10px; right: 10px; background: #f0f0f0; padding: 10px; border-radius: 5px; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <strong>Debug:</strong> user_id={{ user_id }}, grado={{ grado }}
-  </div>
-  {% endif %}
 
 </body>
 </html>

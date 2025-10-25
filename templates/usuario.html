@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PREPARICFES - Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/into.css')}}">
+    <style>
+            body {
+                background-color: #faf9ed;
+            }
+            
+            a {
+                text-decoration: none !important;
+                color: inherit !important;
+            }
+
+
+            .usuario-card {
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                max-width: 600px;
+                margin: 40px auto;
+            }
+            
+            .btn-option {
+                width: 100%;
+                padding: 20px;
+                margin: 10px 0;
+                border-radius: 15px;
+                font-weight: bold;
+                transition: all 0.3s;
+                border: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                font-size: 1.1rem;
+            }
+            
+            .btn-option img {
+                width: 50px;
+                height: 50px;
+                object-fit: contain;
+            }
+            
+            .btn-editar {
+                background-color: #CCB5F8;
+                color: white;
+            }
+            
+            .btn-editar:hover {
+                background-color: #b592f6;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            }
+            
+            .btn-eliminar {
+                background-color: #FFA29E;
+                color: white;
+            }
+            
+            .btn-eliminar:hover {
+                background-color: #fd8c88;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+            }
+            
+            .btn-volver {
+                background-color: #FFFAB9;
+                color: #333;
+                text-decoration: none;
+            }
+            
+            .btn-volver:hover {
+                background-color: #faf28e;
+                transform: translateY(-2px);
+                color: #333;
+                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+            }
+            
+            .info-usuario {
+                background: linear-gradient(135deg, #f4eacb 0%, #faf9ed 100%);
+                padding: 25px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                border: 2px solid #e0d7b6;
+            }
+            
+            .info-usuario p {
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+            }
+            
+            h1 {
+                font-family: "DM Serif Display", serif;
+            }
+    </style>
+</head>
+
+<body>
+
+    <div class="content_barra">
+        <ul class="nav justify-content-end">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('intro')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Introducción</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('criterio')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Criterios</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Competencias</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Usuario</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="usuario-card">
+            <h1 class="text-center mb-4">👤 Mi Cuenta</h1>
+
+            {% if mensaje %}
+            <div class="alert alert-success" role="alert">
+                {{ mensaje }}
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="info-usuario">
+                <p class="mb-2"><strong> Correo:</strong> {{ email }}</p>
+                <p class="mb-0"><strong> Grado:</strong> {{ grado }}°</p>
+            </div>
+
+            <button type="button" class="btn btn-option btn-editar" data-bs-toggle="modal" data-bs-target="#editarModal">
+                <img src="{{ url_for('static', path='Galeria/foquito.png')}}" alt="Editar">
+                <span> Modificar Datos</span>
+            </button>
+
+            <button type="button" class="btn btn-option btn-eliminar" data-bs-toggle="modal" data-bs-target="#eliminarModal">
+                <img src="{{ url_for('static', path='Galeria/foquito1.webp')}}" alt="Eliminar">
+                <span> Eliminar Cuenta</span>
+            </button>
+
+            <a href="{{ url_for('competencias')}}?user_id={{ user_id }}&grado={{ grado }}">
+                <button class="btn btn-option btn-volver">
+                    <img src="{{ url_for('static', path='Galeria/foquito3.png')}}" alt="Volver">
+                    <span> Volver</span>
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal Editar Datos -->
+    <div class="modal fade" id="editarModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #667eea; color: white;">
+                    <h5 class="modal-title">✏️ Modificar Datos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/editar-usuario" method="POST">
+                    <input type="hidden" name="user_id" value="{{ user_id }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="new_email" class="form-label">Nuevo Correo</label>
+                            <input type="email" class="form-control" id="new_email" name="new_email" value="{{ email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Nueva Contraseña (opcional)</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Dejar en blanco para mantener la actual">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_grado" class="form-label">Grado</label>
+                            <select class="form-control" id="new_grado" name="new_grado" required>
+                                <option value="9" {% if grado == '9' %}selected{% endif %}>Noveno (9°)</option>
+                                <option value="10" {% if grado == '10' %}selected{% endif %}>Décimo (10°)</option>
+                                <option value="11" {% if grado == '11' %}selected{% endif %}>Once (11°)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" style="background-color: #667eea; border: none;">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar Cuenta -->
+    <div class="modal fade" id="eliminarModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">⚠️ Eliminar Cuenta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/eliminar-usuario" method="POST">
+                    <input type="hidden" name="user_id" value="{{ user_id }}">
+                    <div class="modal-body">
+                        <p class="text-danger"><strong>¡ADVERTENCIA!</strong></p>
+                        <p>Esta acción eliminará permanentemente:</p>
+                        <ul>
+                            <li>Tu cuenta de usuario</li>
+                            <li>Todos tus resultados de pruebas</li>
+                            <li>Todo tu progreso</li>
+                        </ul>
+                        <p><strong>Esta acción NO se puede deshacer.</strong></p>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirma tu contraseña:</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Eliminar Definitivamente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

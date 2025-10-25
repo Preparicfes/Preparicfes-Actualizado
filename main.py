@@ -23,6 +23,10 @@ async def index(request: Request):
 async def registrate(request: Request):
     return templates.TemplateResponse("registrate.html", {"request": request})
 
+@app.get("/recuperar", response_class=HTMLResponse, name="recuperar")
+async def recuperar(request: Request):
+    return templates.TemplateResponse("recuperar.html", {"request": request})
+
 
 # --- RUTAS DE AUTENTICACIÓN ---
 
@@ -148,6 +152,50 @@ async def login(
         )
 
 
+@app.post("/recuperar-password")
+async def recuperar_password(
+    request: Request,
+    email: str = Form(...),
+    session: SessionDepends = None
+):
+    """
+    Recuperar contraseña (mostrar la contraseña actual)
+    """
+    try:
+        # Buscar usuario por email
+        query = text("SELECT password FROM usuarios WHERE email = :email")
+        result = session.execute(query, {"email": email}).fetchone()
+        
+        if not result:
+            return templates.TemplateResponse(
+                "recuperar.html",
+                {
+                    "request": request,
+                    "error": "No existe una cuenta con ese correo electrónico"
+                }
+            )
+        
+        # Mostrar la contraseña
+        password = result[0]
+        return templates.TemplateResponse(
+            "recuperar.html",
+            {
+                "request": request,
+                "mensaje": f"Tu contraseña es: {password}"
+            }
+        )
+        
+    except Exception as e:
+        print(f"Error en recuperación: {e}")
+        return templates.TemplateResponse(
+            "recuperar.html",
+            {
+                "request": request,
+                "error": "Error al recuperar contraseña. Intenta de nuevo."
+            }
+        )
+
+
 # --- RUTAS DE NAVEGACIÓN ---
 
 @app.get("/intro", response_class=HTMLResponse, name="intro")
@@ -173,6 +221,136 @@ async def competencias(request: Request, user_id: Optional[int] = None, grado: O
         "user_id": user_id,
         "grado": grado
     })
+
+@app.get("/usuario", response_class=HTMLResponse, name="usuario")
+async def usuario(
+    request: Request, 
+    user_id: Optional[int] = None, 
+    grado: Optional[str] = None,
+    session: SessionDepends = None
+):
+    """Página de gestión de usuario"""
+    if not user_id:
+        return RedirectResponse(url="/")
+    
+    try:
+        # Obtener datos del usuario
+        query = text("SELECT email, grado FROM usuarios WHERE id = :user_id")
+        result = session.execute(query, {"user_id": user_id}).fetchone()
+        
+        if not result:
+            return RedirectResponse(url="/")
+        
+        return templates.TemplateResponse("usuario.html", {
+            "request": request,
+            "user_id": user_id,
+            "email": result[0],
+            "grado": result[1]
+        })
+    except Exception as e:
+        print(f"Error en usuario: {e}")
+        return RedirectResponse(url="/")
+
+@app.post("/editar-usuario")
+async def editar_usuario(
+    request: Request,
+    user_id: int = Form(...),
+    new_email: str = Form(...),
+    new_password: Optional[str] = Form(None),
+    new_grado: str = Form(...),
+    session: SessionDepends = None
+):
+    """Editar datos del usuario"""
+    try:
+        # Si se proporciona nueva contraseña
+        if new_password and len(new_password) > 0:
+            query = text("""
+                UPDATE usuarios 
+                SET email = :email, password = :password, grado = :grado
+                WHERE id = :user_id
+            """)
+            session.execute(query, {
+                "email": new_email,
+                "password": new_password,
+                "grado": new_grado,
+                "user_id": user_id
+            })
+        else:
+            query = text("""
+                UPDATE usuarios 
+                SET email = :email, grado = :grado
+                WHERE id = :user_id
+            """)
+            session.execute(query, {
+                "email": new_email,
+                "grado": new_grado,
+                "user_id": user_id
+            })
+        
+        session.commit()
+        
+        return RedirectResponse(
+            url=f"/usuario?user_id={user_id}&grado={new_grado}",
+            status_code=303
+        )
+    except Exception as e:
+        session.rollback()
+        print(f"Error editando usuario: {e}")
+        return RedirectResponse(
+            url=f"/usuario?user_id={user_id}&grado={new_grado}",
+            status_code=303
+        )
+
+@app.post("/eliminar-usuario")
+async def eliminar_usuario(
+    request: Request,
+    user_id: int = Form(...),
+    confirm_password: str = Form(...),
+    session: SessionDepends = None
+):
+    """Eliminar cuenta de usuario"""
+    try:
+        # Verificar contraseña
+        query_check = text("SELECT password FROM usuarios WHERE id = :user_id")
+        result = session.execute(query_check, {"user_id": user_id}).fetchone()
+        
+        if not result or result[0] != confirm_password:
+            return RedirectResponse(
+                url=f"/usuario?user_id={user_id}",
+                status_code=303
+            )
+        
+        # Obtener estudiante_id si existe
+        query_est = text("SELECT id FROM estudiantes WHERE id_usuario = :user_id")
+        estudiante = session.execute(query_est, {"user_id": user_id}).fetchone()
+        
+        if estudiante:
+            estudiante_id = estudiante[0]
+            # Eliminar resultados
+            query_del_res = text("DELETE FROM resultados WHERE id_estudiantes = :est_id")
+            session.execute(query_del_res, {"est_id": estudiante_id})
+            
+            # Eliminar estudiante
+            query_del_est = text("DELETE FROM estudiantes WHERE id = :est_id")
+            session.execute(query_del_est, {"est_id": estudiante_id})
+        
+        # Eliminar usuario
+        query_del_user = text("DELETE FROM usuarios WHERE id = :user_id")
+        session.execute(query_del_user, {"user_id": user_id})
+        
+        session.commit()
+        
+        return RedirectResponse(url="/", status_code=303)
+        
+    except Exception as e:
+        session.rollback()
+        print(f"Error eliminando usuario: {e}")
+        import traceback
+        traceback.print_exc()
+        return RedirectResponse(
+            url=f"/usuario?user_id={user_id}",
+            status_code=303
+        )
 
 
 # --- RUTAS DINÁMICAS PARA PREGUNTAS ---
@@ -240,12 +418,10 @@ async def preguntas_materia(
 async def get_preguntas(
     materia: str,
     grado: str,
-    offset: int = 0,
-    limit: int = 2,
     session: SessionDepends = None
 ):
     """
-    API para obtener preguntas de una materia y grado específicos
+    API para obtener TODAS las preguntas de una materia y grado específicos
     """
     try:
         # Mapeo de nombres de materia
@@ -278,7 +454,7 @@ async def get_preguntas(
         if not area_id:
             raise HTTPException(status_code=404, detail=f"Área no encontrada para '{materia}'")
         
-        # Convertir grado a número si viene como texto
+        # Convertir grado a número
         grado_numeros = {
             "sexto": 6, "6": 6,
             "séptimo": 7, "septimo": 7, "7": 7,
@@ -305,7 +481,7 @@ async def get_preguntas(
         
         grado_id = grado_result[0]
         
-        # Obtener 6 preguntas aleatorias
+        # Obtener 6 preguntas aleatorias UNA SOLA VEZ
         query_preguntas = text("""
             SELECT id, enunciado, opcion_a, opcion_b, opcion_c, opcion_d, 
                    imagen, respuesta_correcta
@@ -320,19 +496,12 @@ async def get_preguntas(
             "grado_id": grado_id
         }).fetchall()
         
-        # Aplicar paginación
-        inicio = offset
-        fin = offset + limit
-        preguntas_pagina = todas_preguntas[inicio:fin]
-        
-        total_preguntas = len(todas_preguntas)
-        
-        # Formatear respuesta
+        # Formatear TODAS las preguntas con su número correcto
         preguntas_list = []
-        for i, p in enumerate(preguntas_pagina):
+        for i, p in enumerate(todas_preguntas):
             preguntas_list.append({
                 "id": p[0],
-                "numero": inicio + i + 1,
+                "numero": i + 1,
                 "enunciado": p[1],
                 "opcion_a": p[2],
                 "opcion_b": p[3],
@@ -344,10 +513,7 @@ async def get_preguntas(
         
         return {
             "preguntas": preguntas_list,
-            "total": total_preguntas,
-            "offset": offset,
-            "limit": limit,
-            "has_more": (offset + limit) < total_preguntas
+            "total": len(preguntas_list)
         }
         
     except HTTPException:
@@ -390,9 +556,21 @@ async def guardar_respuestas(
             query_grado_usuario = text("SELECT grado FROM usuarios WHERE id = :user_id")
             grado_usuario = session.execute(query_grado_usuario, {"user_id": user_id}).scalar()
             
+            # Convertir grado a número
+            grado_numeros = {
+                "sexto": 6, "6": 6,
+                "séptimo": 7, "septimo": 7, "7": 7,
+                "octavo": 8, "8": 8,
+                "noveno": 9, "9": 9,
+                "décimo": 10, "decimo": 10, "10": 10,
+                "once": 11, "11": 11
+            }
+            
+            grado_numero = grado_numeros.get(str(grado_usuario).lower(), int(grado_usuario))
+            
             # Obtener el ID del grado
             query_grado_id = text("SELECT id FROM grado WHERE numero_grado = :numero")
-            grado_id = session.execute(query_grado_id, {"numero": int(grado_usuario)}).scalar()
+            grado_id = session.execute(query_grado_id, {"numero": grado_numero}).scalar()
             
             # Crear estudiante
             query_insert_est = text("""

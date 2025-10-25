@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="{{ url_for('static', path='css/preguntas_dinamicas.css')}}">
   
   <style>
-    /* Colores dinámicos específicos de la materia */
     .conten_nav {
       background-color: {{ color_materia }};
     }
@@ -49,12 +48,10 @@
     </div>
   </header>
 
-  <!-- Indicador de progreso -->
   <div id="progreso" class="progreso" style="display: none;">
     Pregunta <span id="progreso-actual">1</span> - <span id="progreso-siguiente">2</span> de <span id="progreso-total">6</span>
   </div>
 
-  <!-- Contenedor de carga -->
   <div id="loading" class="loading">
     <div class="spinner-border" role="status">
       <span class="visually-hidden">Cargando...</span>
@@ -62,12 +59,8 @@
     <p>Cargando preguntas...</p>
   </div>
 
-  <!-- Contenedor principal de preguntas -->
-  <main id="contenedor-preguntas" class="contenedor" style="display: none;">
-    <!-- Las preguntas se cargarán dinámicamente aquí -->
-  </main>
+  <main id="contenedor-preguntas" class="contenedor" style="display: none;"></main>
 
-  <!-- Resultado final -->
   <div id="resultado-final" class="resultado-final">
     <h2>¡Prueba Completada!</h2>
     <div class="puntaje" id="puntaje-display">0%</div>
@@ -82,7 +75,6 @@
     </a>
   </div>
 
-  <!-- Botones de navegación -->
   <div id="botones-navegacion" class="botones" style="display: none;">
     <button id="btn-anterior" class="boton_volver">← Anterior</button>
     <button id="btn-siguiente" class="boton_siguiente">Siguiente →</button>
@@ -90,39 +82,30 @@
   </div>
 
   <script>
-    // Variables globales
     const materia = '{{ materia }}';
     const grado = '{{ grado }}';
     const userId = {{ user_id if user_id else 'null' }};
     
-    let currentOffset = 0;
-    let totalPreguntas = 6;
+    let currentPage = 0;
+    let todasLasPreguntas = [];
     let todasLasRespuestas = {};
-    let preguntasActuales = [];
     
-    // Cargar preguntas al inicio
     document.addEventListener('DOMContentLoaded', () => {
       if (!userId || !grado) {
         alert('Error: No se ha iniciado sesión correctamente');
         window.location.href = '/';
         return;
       }
-      cargarPreguntas(0);
+      cargarTodasLasPreguntas();
     });
     
-    // Función para cargar preguntas desde la API
-    async function cargarPreguntas(offset) {
+    async function cargarTodasLasPreguntas() {
       try {
         document.getElementById('loading').style.display = 'block';
-        document.getElementById('contenedor-preguntas').style.display = 'none';
-        document.getElementById('botones-navegacion').style.display = 'none';
-        document.getElementById('progreso').style.display = 'none';
         
-        console.log(`📡 Cargando preguntas: materia=${materia}, grado=${grado}, offset=${offset}`);
+        console.log(`📡 Cargando todas las preguntas: materia=${materia}, grado=${grado}`);
         
-        const response = await fetch(
-          `/api/preguntas/${materia}?grado=${grado}&offset=${offset}&limit=2`
-        );
+        const response = await fetch(`/api/preguntas/${materia}?grado=${grado}`);
         
         if (!response.ok) {
           const errorText = await response.text();
@@ -138,21 +121,10 @@
           throw new Error('No hay preguntas disponibles para este grado y materia');
         }
         
-        preguntasActuales = data.preguntas;
-        totalPreguntas = data.total;
-        currentOffset = offset;
-        
-        renderizarPreguntas(data.preguntas);
-        actualizarBotones(data.has_more);
-        actualizarProgreso();
+        todasLasPreguntas = data.preguntas;
         
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('contenedor-preguntas').style.display = 'flex';
-        document.getElementById('botones-navegacion').style.display = 'flex';
-        document.getElementById('progreso').style.display = 'block';
-        
-        // Scroll al inicio
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        mostrarPagina(0);
         
       } catch (error) {
         console.error('❌ Error:', error);
@@ -164,20 +136,36 @@
       }
     }
     
-    // Función para actualizar el indicador de progreso
-    function actualizarProgreso() {
-      document.getElementById('progreso-actual').textContent = currentOffset + 1;
-      const siguiente = Math.min(currentOffset + 2, totalPreguntas);
-      document.getElementById('progreso-siguiente').textContent = siguiente;
-      document.getElementById('progreso-total').textContent = totalPreguntas;
+    function mostrarPagina(pageIndex) {
+      currentPage = pageIndex;
+      const inicio = pageIndex * 2;
+      const fin = Math.min(inicio + 2, todasLasPreguntas.length);
+      const preguntasPagina = todasLasPreguntas.slice(inicio, fin);
+      
+      renderizarPreguntas(preguntasPagina);
+      actualizarBotones();
+      actualizarProgreso();
+      
+      document.getElementById('contenedor-preguntas').style.display = 'flex';
+      document.getElementById('botones-navegacion').style.display = 'flex';
+      document.getElementById('progreso').style.display = 'block';
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
-    // Función para renderizar preguntas en el DOM
+    function actualizarProgreso() {
+      const inicio = currentPage * 2;
+      const fin = Math.min(inicio + 2, todasLasPreguntas.length);
+      document.getElementById('progreso-actual').textContent = inicio + 1;
+      document.getElementById('progreso-siguiente').textContent = fin;
+      document.getElementById('progreso-total').textContent = todasLasPreguntas.length;
+    }
+    
     function renderizarPreguntas(preguntas) {
       const contenedor = document.getElementById('contenedor-preguntas');
       contenedor.innerHTML = '';
       
-      preguntas.forEach((pregunta, index) => {
+      preguntas.forEach((pregunta) => {
         const respuestaGuardada = todasLasRespuestas[pregunta.id];
         const respuestaObj = respuestaGuardada ? respuestaGuardada.respuesta : null;
         
@@ -208,13 +196,11 @@
         
         contenedor.appendChild(divPregunta);
         
-        // Agregar event listeners para guardar respuestas
         const radios = divPregunta.querySelectorAll('input[type="radio"]');
         radios.forEach(radio => {
           radio.addEventListener('change', (e) => {
             guardarRespuesta(pregunta.id, e.target.value, pregunta.respuesta_correcta);
             
-            // Actualizar estilos visuales
             const labels = divPregunta.querySelectorAll('label');
             labels.forEach(l => l.classList.remove('selected'));
             e.target.parentElement.classList.add('selected');
@@ -223,25 +209,34 @@
       });
     }
     
-    // Función para guardar respuesta localmente
     function guardarRespuesta(preguntaId, respuesta, respuestaCorrecta) {
+      const respuestaNormalizada = respuesta.trim().toUpperCase();
+      const correctaNormalizada = respuestaCorrecta.trim().toUpperCase();
+      const esCorrecta = respuestaNormalizada === correctaNormalizada;
+      
       todasLasRespuestas[preguntaId] = {
         respuesta: respuesta,
-        correcta: respuesta === respuestaCorrecta
+        correcta: esCorrecta
       };
-      console.log('✅ Respuesta guardada:', preguntaId, respuesta, 'Correcta:', respuesta === respuestaCorrecta);
+      
+      console.log('✅ Respuesta guardada:', {
+        pregunta: preguntaId,
+        respuesta: respuesta,
+        correcta: esCorrecta
+      });
     }
     
-    // Actualizar estado de botones
-    function actualizarBotones(hasMore) {
+    function actualizarBotones() {
       const btnAnterior = document.getElementById('btn-anterior');
       const btnSiguiente = document.getElementById('btn-siguiente');
       const btnFinalizar = document.getElementById('btn-finalizar');
       
-      btnAnterior.disabled = currentOffset === 0;
-      btnAnterior.style.display = currentOffset === 0 ? 'none' : 'inline-block';
+      btnAnterior.disabled = currentPage === 0;
+      btnAnterior.style.display = currentPage === 0 ? 'none' : 'inline-block';
       
-      if (hasMore) {
+      const ultimaPagina = Math.ceil(todasLasPreguntas.length / 2) - 1;
+      
+      if (currentPage < ultimaPagina) {
         btnSiguiente.style.display = 'inline-block';
         btnFinalizar.style.display = 'none';
       } else {
@@ -250,36 +245,36 @@
       }
     }
     
-    // Event listeners para botones
     document.getElementById('btn-anterior').addEventListener('click', () => {
-      if (currentOffset >= 2) {
-        cargarPreguntas(currentOffset - 2);
+      if (currentPage > 0) {
+        mostrarPagina(currentPage - 1);
       }
     });
     
     document.getElementById('btn-siguiente').addEventListener('click', () => {
-      cargarPreguntas(currentOffset + 2);
+      const ultimaPagina = Math.ceil(todasLasPreguntas.length / 2) - 1;
+      if (currentPage < ultimaPagina) {
+        mostrarPagina(currentPage + 1);
+      }
     });
     
     document.getElementById('btn-finalizar').addEventListener('click', async () => {
       const respondidas = Object.keys(todasLasRespuestas).length;
+      const total = todasLasPreguntas.length;
       
-      if (respondidas < totalPreguntas) {
+      if (respondidas < total) {
         const confirmar = confirm(
-          `Has respondido ${respondidas} de ${totalPreguntas} preguntas.\n\n` +
+          `Has respondido ${respondidas} de ${total} preguntas.\n\n` +
           `Las preguntas sin responder se contarán como incorrectas.\n\n` +
           `¿Deseas finalizar de todas formas?`
         );
         
-        if (!confirmar) {
-          return;
-        }
+        if (!confirmar) return;
       }
       
       await finalizarPrueba();
     });
     
-    // Función para finalizar la prueba
     async function finalizarPrueba() {
       try {
         document.getElementById('loading').style.display = 'block';
@@ -287,7 +282,6 @@
         document.getElementById('botones-navegacion').style.display = 'none';
         document.getElementById('progreso').style.display = 'none';
         
-        // Preparar datos para enviar
         const respuestasArray = Object.entries(todasLasRespuestas).map(([id, data]) => ({
           pregunta_id: parseInt(id),
           respuesta: data.respuesta,
@@ -298,9 +292,7 @@
         
         const response = await fetch('/api/guardar-respuestas', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             user_id: userId,
             materia: materia,
@@ -316,7 +308,6 @@
         
         console.log('✅ Resultado guardado:', resultado);
         
-        // Mostrar resultado
         document.getElementById('loading').style.display = 'none';
         document.getElementById('resultado-final').style.display = 'block';
         document.getElementById('puntaje-display').textContent = `${resultado.puntaje}%`;
@@ -324,24 +315,18 @@
         document.getElementById('total-display').textContent = resultado.total;
         
         let mensaje = '';
-        if (resultado.puntaje >= 90) {
-          mensaje = '🎉 ¡Excelente! Tienes un dominio sobresaliente de esta materia.';
-        } else if (resultado.puntaje >= 70) {
-          mensaje = '👍 ¡Muy bien! Tienes un buen conocimiento de la materia.';
-        } else if (resultado.puntaje >= 50) {
-          mensaje = '👌 ¡Buen trabajo! Sigue practicando para mejorar.';
-        } else {
-          mensaje = '📚 Sigue estudiando. La práctica te ayudará a mejorar.';
-        }
+        if (resultado.puntaje >= 90) mensaje = '🎉 ¡Excelente! Tienes un dominio sobresaliente.';
+        else if (resultado.puntaje >= 70) mensaje = '👍 ¡Muy bien! Buen conocimiento.';
+        else if (resultado.puntaje >= 50) mensaje = '👌 ¡Buen trabajo! Sigue practicando.';
+        else mensaje = '📚 Sigue estudiando. La práctica ayuda.';
         
         document.getElementById('mensaje-resultado').textContent = mensaje;
         
-        // Scroll al resultado
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
       } catch (error) {
         console.error('❌ Error:', error);
-        alert('Hubo un error al finalizar la prueba. Por favor, intenta de nuevo.');
+        alert('Error al finalizar la prueba. Intenta de nuevo.');
         document.getElementById('loading').style.display = 'none';
         document.getElementById('contenedor-preguntas').style.display = 'flex';
         document.getElementById('botones-navegacion').style.display = 'flex';

@@ -55,15 +55,16 @@ async def registrar_usuario(
             )
         
         print("💾 Guardando contraseña sin cifrar...")
-        query_insert = text("""INSERT INTO usuarios (email, password, grado, fecha_registro)
-                            VALUES (:email, :password, :grado, :fecha_registro)
+        query_insert = text("""
+            INSERT INTO usuarios (email, password, grado, fecha_registro)
+            VALUES (:email, :password, :grado, :fecha_registro)
         """)
-        
+
         session.execute(query_insert, {
             "email": email,
-            "password": hashed_password,
-            "grado": grado,
-            "fecha_registro": datetime.now()
+            "password": password,  # 🔹 usa directamente la contraseña del formulario
+        "grado": grado,
+        "fecha_registro": datetime.now()
         })
         session.commit()
         

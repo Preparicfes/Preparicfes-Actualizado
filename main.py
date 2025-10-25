@@ -69,6 +69,7 @@ async def registrar_usuario(
         
         # Encriptar la contraseña
         print("🔒 Encriptando contraseña...")
+        password = password[:72]  # Limita a 72 caracteres
         hashed_password = hash_password(password)
         
         # Insertar nuevo usuario

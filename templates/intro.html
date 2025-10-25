@@ -15,26 +15,26 @@
    <div class="content_barra">
     <ul class="nav justify-content-end">
       <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="{{ url_for('intro')}}">Introducción</a>
+        <a class="nav-link active" aria-current="page" href="{{ url_for('intro')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Introducción</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('criterio')}}">Criterios</a>
+        <a class="nav-link" href="{{ url_for('criterio')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Criterios</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('competencias')}}">Competencias</a>
+        <a class="nav-link" href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Competencias</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('competencias')}}">Información</a>
+        <a class="nav-link" href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Información</a>
       </li>
     </ul>
   </div>
-
 
     <div class="container">
         <div class="content_introduccion" style="text-align: center;">
             <h1>INTRODUCCIÓN</h1>
             <br>
-            <div class="dist" styles="background-color: #f4eacb;">
+
+            <div class="dist" style="background-color: #f4eacb;">
 
             </div>
             <div class="content_cuadrado">
@@ -50,6 +50,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Debug info (remover en producción) -->
+    {% if user_id %}
+    <div style="position: fixed; bottom: 10px; right: 10px; background: #f0f0f0; padding: 10px; border-radius: 5px; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+      <strong>Debug:</strong> user_id={{ user_id }}, grado={{ grado }}
+    </div>
+    {% endif %}
 
 </body>
 

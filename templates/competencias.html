@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PREPARICFES</title>
+  <title>PREPARICFES - Competencias</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', path='css/comp.css')}}">
 </head>
@@ -11,10 +11,10 @@
 
   <div class="conten_barra">
     <ul class="nav justify-content-end">
-      <li class="nav-item"><a class="nav-link" href="{{ url_for('intro')}}">Introducción</a></li>
-      <li class="nav-item"><a class="nav-link" href="{{ url_for('criterio')}}">Criterios</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('intro')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Introducción</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('criterio')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Criterios</a></li>
       <li class="nav-item"><a class="nav-link" href="{{ url_for('index')}}">Inicio</a></li>
-      <li class="nav-item"><a class="nav-link active" href="{{ url_for('competencias')}}">Información</a></li>
+      <li class="nav-item"><a class="nav-link active" href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Información</a></li>
     </ul>
   </div>
 
@@ -22,9 +22,13 @@
     <h1>COMPETENCIAS</h1>
   </div>
 
-  <div class="grid_competencias" >
+  <div class="grid_competencias">
 
-    <a href="{{ url_for('pregun1mat')}}" class="card_comp matematicas">
+    {% if user_id and grado %}
+    <a href="/preguntas/matematicas?user_id={{ user_id }}&grado={{ grado }}" class="card_comp matematicas">
+    {% else %}
+    <a href="/" class="card_comp matematicas" onclick="alert('Por favor, inicia sesión primero'); return false;">
+    {% endif %}
       <div class="logo"><img src="{{ url_for('static', path='Galeria/foquito1.webp')}}" alt="Matemáticas"></div>
       <h2>Matemáticas</h2>
       <ul>
@@ -36,7 +40,11 @@
       </ul>
     </a>
 
-    <a href="{{ url_for('pregun1ing')}}" class="card_comp ingles">
+    {% if user_id and grado %}
+    <a href="/preguntas/ingles?user_id={{ user_id }}&grado={{ grado }}" class="card_comp ingles">
+    {% else %}
+    <a href="/" class="card_comp ingles" onclick="alert('Por favor, inicia sesión primero'); return false;">
+    {% endif %}
       <div class="logo"><img src="{{ url_for('static', path='Galeria/foquito.png')}}" alt="Inglés"></div>
       <h2>Inglés</h2>
       <ul>
@@ -48,17 +56,25 @@
       </ul>
     </a>
 
-    <a href="{{ url_for('pregunsoc1')}}" class="card_comp sociales">
+    {% if user_id and grado %}
+    <a href="/preguntas/sociales?user_id={{ user_id }}&grado={{ grado }}" class="card_comp sociales">
+    {% else %}
+    <a href="/" class="card_comp sociales" onclick="alert('Por favor, inicia sesión primero'); return false;">
+    {% endif %}
       <div class="logo"><img src="{{ url_for('static', path='Galeria/foquito3.png')}}" alt="Sociales"></div>
       <h2>Sociales y Ciudadanas</h2>
       <ul>
-        <li>-Pensamiento reflexivo y sistématico</li>
+        <li>-Pensamiento reflexivo y sistemático</li>
         <li>-Interpretación y análisis de perspectivas</li>
         <li>-Pensamiento social</li>
       </ul>
     </a>
 
-    <a href="{{ url_for('pregunlec1')}}" class="card_comp lectura">
+    {% if user_id and grado %}
+    <a href="/preguntas/lectura?user_id={{ user_id }}&grado={{ grado }}" class="card_comp lectura">
+    {% else %}
+    <a href="/" class="card_comp lectura" onclick="alert('Por favor, inicia sesión primero'); return false;">
+    {% endif %}
       <div class="logo"><img src="{{ url_for('static', path='Galeria/foquito4.png')}}" alt="Lectura crítica"></div>
       <h2>Lectura Crítica</h2>
       <ul>
@@ -67,7 +83,11 @@
       </ul>
     </a>
 
-    <a href="{{ url_for('preguncien1')}}" class="card_comp ciencias">
+    {% if user_id and grado %}
+    <a href="/preguntas/ciencias?user_id={{ user_id }}&grado={{ grado }}" class="card_comp ciencias">
+    {% else %}
+    <a href="/" class="card_comp ciencias" onclick="alert('Por favor, inicia sesión primero'); return false;">
+    {% endif %}
       <div class="logo"><img src="{{ url_for('static', path='Galeria/foquito5.png')}}" alt="Ciencias naturales"></div>
       <h2>Ciencias Naturales</h2>
       <ul>
@@ -79,6 +99,13 @@
     </a>
 
   </div>
+
+  <!-- Debug info (remover en producción) -->
+  {% if user_id %}
+  <div style="position: fixed; bottom: 10px; right: 10px; background: #f0f0f0; padding: 10px; border-radius: 5px; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <strong>Debug:</strong> user_id={{ user_id }}, grado={{ grado }}
+  </div>
+  {% endif %}
 
 </body>
 </html>

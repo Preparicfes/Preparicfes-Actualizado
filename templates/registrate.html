@@ -11,46 +11,69 @@
 
   <div class="container">
 
-    
     <div class="conten_titulo text-center my-4">
       <h1>BIENVENIDO</h1>
       <h3 class="mt-2">Regístrate</h3>
     </div>
 
-    
-       <div class="conten_form_inicio mx-auto">
-      <form id="registroForm">
+    <!-- Mensaje de error si existe -->
+    {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Error:</strong> {{ error }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <div class="conten_form_inicio mx-auto">
+      <!-- Formulario con action y method POST -->
+      <form id="registroForm" action="/registrar" method="POST">
 
         <div class="mb-3">
           <label for="email" class="form-label">CORREO ELECTRÓNICO</label>
-          <input id="email" name="email" class="form-control form-control-lg border_input" type="email" required>
+          <input 
+            id="email" 
+            name="email" 
+            class="form-control form-control-lg border_input" 
+            type="email" 
+            required
+            placeholder="ejemplo@correo.com">
           <div id="emailHelp" class="form-text">Tu correo electrónico no será compartido con nadie más.</div>
         </div>
 
         <div class="mb-3">
           <label for="password" class="form-label">CONTRASEÑA</label>
-          <input id="password" name="password" class="form-control form-control-lg border_input" type="password" required>
+          <input 
+            id="password" 
+            name="password" 
+            class="form-control form-control-lg border_input" 
+            type="password" 
+            minlength="6"
+            required
+            placeholder="Mínimo 6 caracteres">
         </div>
 
         <div class="mb-4">
           <label for="grado" class="form-label">GRADO</label>
-          <input id="grado" name="grado" class="form-control form-control-lg border_input" type="text" required>
-        </div>
-          <div class="conten_siguiente">
-          <a href="{{ url_for('index')}}"type="submit" class="btn_registro">Registrarse</a>
+          <select id="grado" name="grado" class="form-control form-control-lg border_input" required>
+            <option value="">Selecciona tu grado</option>
+            <option value="9">Noveno</option>
+            <option value="10">Décimo</option>
+            <option value="11">Once</option>
+          </select>
         </div>
 
-        <div class="text-center">
-          <a href="{{ url_for('index')}}" class="tipo_letra">¿Ya tienes cuenta? Inicia sesión</a>
+        <div class="conten_siguiente">
+          <button type="submit" class="btn_registro">Registrarse</button>
         </div>
-          </a>
+
+        <div class="text-center mt-3">
+          <a href="{{ url_for('index')}}" class="tipo_letra">¿Ya tienes cuenta? Inicia sesión</a>
         </div>
 
       </form>
     </div>
   </div>
 
-  </div>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

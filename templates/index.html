@@ -15,36 +15,54 @@
       <h1>PREPARICFES</h1>
     </div>
 
-      <div class="conten_form_inicio mx-auto">
-      <form action="/login" method="post">
+    <div class="conten_form_inicio mx-auto">
+      <!-- Mensaje de éxito si viene del registro -->
+      {% if request.query_params.get('registro') == 'exitoso' %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>¡Registro exitoso!</strong> Ahora puedes iniciar sesión.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endif %}
+
+      <!-- Mensaje de error si existe -->
+      {% if error %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Error:</strong> {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endif %}
+
+      <form action="/login" method="POST">
 
         <div class="mb-3">
           <label for="email" class="form-label">CORREO ELECTRÓNICO</label>
-          <input id="email" name="email" class="form-control form-control-lg border_input" type="email" required>
+          <input 
+            id="email" 
+            name="email" 
+            class="form-control form-control-lg border_input" 
+            type="email" 
+            required
+            placeholder="ejemplo@correo.com">
         </div>
 
         <div class="mb-3">
           <label for="password" class="form-label">CONTRASEÑA</label>
-          <input id="password" name="password" class="form-control form-control-lg border_input" type="password" required>
+          <input 
+            id="password" 
+            name="password" 
+            class="form-control form-control-lg border_input" 
+            type="password" 
+            required
+            placeholder="Tu contraseña">
         </div>
-
-        <div class="mb-4">
-          <label for="grado" class="form-label">GRADO</label>
-          <input id="grado" name="grado" class="form-control form-control-lg border_input" type="text" required>
-        </div>
-
-        {% if error %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
 
         <div class="conten_siguiente">
-       <a href="{{ url_for('intro')}}" class="btn_siguiente">SIGUIENTE</a>
-       </div>
-
-       <div class="text-center">
-         <a href="{{ url_for('registrate')}}" class="registrarse">¿No tienes cuenta? Regístrate</a>
+          <button type="submit" class="btn_siguiente">SIGUIENTE</button>
         </div>
 
+        <div class="text-center">
+          <a href="{{ url_for('registrate')}}" class="registrarse">¿No tienes cuenta? Regístrate</a>
+        </div>
 
       </form>
     </div>
@@ -58,5 +76,6 @@
     <div class="conten_img5"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

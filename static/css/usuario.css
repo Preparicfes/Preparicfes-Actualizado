@@ -1,0 +1,151 @@
+body {
+  background-color: #faf9ed;
+  
+}
+
+a {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+.card-usuario {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+.btn-opcion {
+  width: 100%;
+  padding: 20px;
+  margin: 10px 0;
+  border-radius: 15px;
+  font-weight: bold;
+  transition: all 0.3s;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.btn-opcion img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.btn-opcion.editar {
+  background-color: #CCB5F8;
+  color: white;
+}
+
+.btn-opcion.editar:hover {
+  background-color: #b592f6;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(204, 181, 248, 0.4);
+}
+
+.btn-opcion.eliminar {
+  background-color: #FFA29E;
+  color: white;
+}
+
+.btn-opcion.eliminar:hover {
+  background-color: #fd8c88;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 162, 158, 0.4);
+}
+
+.btn-opcion.resultados {
+  background-color: #81CBF6;
+  color: white;
+}
+
+.btn-opcion.resultados:hover {
+  background-color: #6ab8e8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(129, 203, 246, 0.4);
+}
+
+.btn-opcion.cerrar {
+  background-color: #C7F683;
+  color: white;
+}
+
+.btn-opcion.cerrar:hover {
+  background-color: #b3e86f;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(199, 246, 131, 0.4);
+}
+
+.btn-opcion.volver {
+  background-color: #FFFAB9;
+  color: white;
+}
+
+.btn-opcion.volver:hover {
+  background-color: #faf28e;
+  transform: translateY(-2px);
+  color: white;
+  box-shadow: 0 5px 15px rgba(255, 250, 185, 0.4);
+}
+
+.info {
+  background: linear-gradient(135deg, #f4eacb 0%, #faf9ed 100%);
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  border: 2px solid #e0d7b6;
+}
+
+.info p {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-family: "DM Serif Display", serif;
+}
+
+.header-editar {
+  background-color: #CCB5F8;
+  color: white;
+}
+
+.header-eliminar {
+  background-color: #FFA29E;
+  color: white;
+}
+
+.btn-editar {
+  background-color: #CCB5F8;
+  border: none;
+  color: white;
+}
+
+.btn-eliminar {
+  background-color: #FFA29E;
+  border: none;
+  color: white;
+}
+
+.content_barra {
+  background-color: #f4eacb;
+  padding: 10px 20px;
+}
+
+.nav-link {
+  color: black;
+  font-family: "DM Serif Display", serif;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.nav-link:hover {
+  color: #555;
+}

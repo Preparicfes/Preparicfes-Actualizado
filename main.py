@@ -312,18 +312,20 @@ async def resultados(request: Request, user_id: Optional[int] = None,
         
         if est:
             est_id = est[0]
-            # Obtener solo el resultado más reciente por materia usando subconsulta
+            # Obtener solo el resultado más reciente por materia
             results = session.execute(text("""
-                SELECT a.nombre_materia, r.puntaje_final
-                FROM resultados r
-                JOIN areas a ON r.id_areas = a.id
-                WHERE r.id_estudiantes = :id
-                AND r.fecha = (
-                    SELECT MAX(r2.fecha)
-                    FROM resultados r2
-                    WHERE r2.id_estudiantes = :id
-                    AND r2.id_areas = r.id_areas
+                WITH UltimosResultados AS (
+                    SELECT 
+                        id_areas,
+                        puntaje_final,
+                        ROW_NUMBER() OVER (PARTITION BY id_areas ORDER BY fecha DESC) as rn
+                    FROM resultados
+                    WHERE id_estudiantes = :id
                 )
+                SELECT a.nombre_materia, ur.puntaje_final
+                FROM UltimosResultados ur
+                JOIN areas a ON ur.id_areas = a.id
+                WHERE ur.rn = 1
                 ORDER BY a.nombre_materia
             """), {"id": est_id}).fetchall()
             
@@ -339,7 +341,8 @@ async def resultados(request: Request, user_id: Optional[int] = None,
             "resultados": resultados, "promedio": round(promedio, 2)
         })
         
-    except:
+    except Exception as e:
+        print(f"Error en resultados: {e}")
         return templates.TemplateResponse("Resul.html", {
             "request": request, "user_id": user_id, "grado": grado,
             "resultados": [], "promedio": 0

@@ -4,12 +4,27 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
 from db import SessionDepends
 from seguridad.autenticacion import requerir_autenticacion, crear_token
-from passlib.context import CryptContext
 from datetime import timedelta
+import hashlib
+import secrets
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    """Encripta una contraseña usando SHA-256 con salt"""
+    salt = secrets.token_hex(16)
+    pwd_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+    return f"{salt}:{pwd_hash}"
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifica si una contraseña coincide con su hash"""
+    try:
+        salt, pwd_hash = hashed_password.split(":")
+        new_hash = hashlib.sha256((plain_password + salt).encode()).hexdigest()
+        return new_hash == pwd_hash
+    except:
+        return False
 
 @router.get("/usuario", response_class=HTMLResponse, name="usuario")
 async def usuario(request: Request, usuario: dict = Depends(requerir_autenticacion), 
@@ -41,7 +56,7 @@ async def editar(request: Request, new_email: str = Form(...),
         
         if new_password:
             # Si hay nueva contraseña, encriptarla
-            password_encriptada = pwd_context.hash(new_password)
+            password_encriptada = hash_password(new_password)
             session.execute(text("""
                 UPDATE usuarios SET email = :email, password = :pass, grado = :grado 
                 WHERE id = :id
@@ -85,7 +100,7 @@ async def eliminar(request: Request, confirm_password: str = Form(...),
         datos_usuario = session.execute(text("SELECT password FROM usuarios WHERE id = :id"), 
                                 {"id": user_id}).fetchone()
         
-        if not datos_usuario or not pwd_context.verify(confirm_password, datos_usuario[0]):
+        if not datos_usuario or not verify_password(confirm_password, datos_usuario[0]):
             return RedirectResponse(url="/usuario", status_code=303)
         
         # Eliminar estudiante y resultados

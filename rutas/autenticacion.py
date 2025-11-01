@@ -5,11 +5,26 @@ from sqlalchemy import text
 from db import SessionDepends
 from datetime import datetime, timedelta
 from seguridad.autenticacion import crear_token
-from passlib.context import CryptContext
+import hashlib
+import secrets
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    """Encripta una contraseña usando SHA-256 con salt"""
+    salt = secrets.token_hex(16)
+    pwd_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+    return f"{salt}:{pwd_hash}"
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifica si una contraseña coincide con su hash"""
+    try:
+        salt, pwd_hash = hashed_password.split(":")
+        new_hash = hashlib.sha256((plain_password + salt).encode()).hexdigest()
+        return new_hash == pwd_hash
+    except:
+        return False
 
 @router.get("/", response_class=HTMLResponse, name="index")
 async def index(request: Request):
@@ -31,7 +46,7 @@ async def registrar(request: Request, email: str = Form(...), password: str = Fo
                 {"request": request, "error": "Este correo ya está registrado"})
         
         # Encriptar la contraseña
-        password_encriptada = pwd_context.hash(password)
+        password_encriptada = hash_password(password)
         
         # Crear usuario
         session.execute(text("""
@@ -57,7 +72,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         """), {"email": email}).fetchone()
         
         # Verificar contraseña
-        if not usuario or not pwd_context.verify(password, usuario[1]):
+        if not usuario or not verify_password(password, usuario[1]):
             return templates.TemplateResponse("index.html", 
                 {"request": request, "error": "Correo o contraseña incorrectos"})
         

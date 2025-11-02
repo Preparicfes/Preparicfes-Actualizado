@@ -13,6 +13,7 @@
     <ul class="nav justify-content-end">
       <li class="nav-item"><a class="nav-link" href="{{ url_for('intro')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Introducción</a></li>
       <li class="nav-item"><a class="nav-link" href="{{ url_for('criterio')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Criterios</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('index')}}">Inicio</a></li>
       <li class="nav-item"><a class="nav-link active" href="{{ url_for('competencias')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Competencias</a></li>
       <li class="nav-item"><a class="nav-link" href="{{ url_for('usuario')}}{% if user_id %}?user_id={{ user_id }}&grado={{ grado }}{% endif %}">Usuario</a></li>
     </ul>
@@ -25,7 +26,7 @@
   <div class="grid_competencias">
 
     {% if user_id and grado %}
-    <a href="/preguntas/matematicas?user_id={{ user_id }}&grado={{ grado }}" class="card_comp matematicas">
+    <a href="/preguntas/matematicas" class="card_comp matematicas">
     {% else %}
     <a href="/" class="card_comp matematicas" onclick="alert('Por favor, inicia sesión primero'); return false;">
     {% endif %}
@@ -41,7 +42,7 @@
     </a>
 
     {% if user_id and grado %}
-    <a href="/preguntas/ingles?user_id={{ user_id }}&grado={{ grado }}" class="card_comp ingles">
+    <a href="/preguntas/ingles" class="card_comp ingles">
     {% else %}
     <a href="/" class="card_comp ingles" onclick="alert('Por favor, inicia sesión primero'); return false;">
     {% endif %}

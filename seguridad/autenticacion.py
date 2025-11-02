@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import Request, HTTPException
 from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
@@ -45,10 +45,18 @@ def obtener_usuario_actual(request: Request):
     return verificar_token(token)
 
 def requerir_autenticacion(request: Request):
-    """Verifica que el usuario esté autenticado, sino lo redirige al login"""
+    """
+    Verifica que el usuario esté autenticado.
+    Si no lo está, lanza una excepción HTTP que será manejada por FastAPI.
+    """
     usuario = obtener_usuario_actual(request)
     
     if not usuario:
-        return RedirectResponse(url="/", status_code=303)
+        # Lanzar una excepción que FastAPI manejará correctamente
+        raise HTTPException(
+            status_code=303,
+            detail="No autenticado",
+            headers={"Location": "/"}
+        )
     
     return usuario

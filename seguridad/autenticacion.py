@@ -1,62 +1,54 @@
-from fastapi import Request, HTTPException
-from fastapi.responses import RedirectResponse
-from jose import JWTError, jwt
-from datetime import datetime, timedelta
 import os
+import hashlib
+import secrets
+from datetime import datetime, timedelta
+from fastapi import Request, HTTPException
+from jose import JWTError, jwt
 from dotenv import load_dotenv
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
-def crear_token(data: dict, expires_delta: timedelta = None):
-    """Crea un token JWT con los datos del usuario"""
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=480)
-    
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+def hash_password(password: str) -> str:
+    """Encripta contraseña con SHA-256 y salt"""
+    salt = secrets.token_hex(16)
+    pwd_hash = hashlib.sha256(f"{password}{salt}".encode()).hexdigest()
+    return f"{salt}:{pwd_hash}"
 
-def verificar_token(token: str):
-    """Verifica y decodifica un token JWT"""
+def verify_password(plain: str, hashed: str) -> bool:
+    """Verifica contraseña"""
+    try:
+        salt, pwd_hash = hashed.split(":")
+        return hashlib.sha256(f"{plain}{salt}".encode()).hexdigest() == pwd_hash
+    except:
+        return False
+
+def crear_token(data: dict, expires_delta: timedelta = None) -> str:
+    """Crea JWT"""
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=480))
+    to_encode["exp"] = expire
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def verificar_token(token: str) -> dict | None:
+    """Decodifica JWT"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("user_id")
-        grado: str = payload.get("grado")
-        
-        if user_id is None or grado is None:
-            return None
-        
-        return {"user_id": user_id, "grado": grado}
+        if (user_id := payload.get("user_id")) and (grado := payload.get("grado")):
+            return {"user_id": user_id, "grado": grado}
     except JWTError:
-        return None
+        pass
+    return None
 
-def obtener_usuario_actual(request: Request):
-    """Obtiene el usuario del token guardado en las cookies"""
-    token = request.cookies.get("access_token")
-    
-    if not token:
-        return None
-    
-    return verificar_token(token)
+def obtener_usuario_actual(request: Request) -> dict | None:
+    """Obtiene usuario del token en cookies"""
+    if token := request.cookies.get("access_token"):
+        return verificar_token(token)
+    return None
 
-def requerir_autenticacion(request: Request):
-    """
-    Verifica que el usuario esté autenticado.
-    Si no lo está, lanza una excepción HTTP que será manejada por FastAPI.
-    """
-    usuario = obtener_usuario_actual(request)
-    
-    if not usuario:
-        # Lanzar una excepción que FastAPI manejará correctamente
-        raise HTTPException(
-            status_code=303,
-            detail="No autenticado",
-            headers={"Location": "/"}
-        )
-    
+def requerir_autenticacion(request: Request) -> dict:
+    """Valida autenticación o redirige"""
+    if not (usuario := obtener_usuario_actual(request)):
+        raise HTTPException(status_code=303, detail="No autenticado", headers={"Location": "/"})
     return usuario
